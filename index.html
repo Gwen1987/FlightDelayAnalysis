@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.128/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.128/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+  <div id="cesContainer"></div>
+
+  <script type="module">
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNTRlMDQ5Yi0zMTFkLTQ0ZjYtODFlMC04MGJhZGNiYjgzNzkiLCJpZCI6MjkyMjIwLCJpYXQiOjE3NDQxNjE1NTh9.kLYqsSHCjp-5ap_NM8Egx9hxCCqEeCWWh0nakOLrLDg';
+
+    // Initialize Cesium Viewer
+    const viewer = new Cesium.Viewer('cesContainer', {
+      terrain: Cesium.Terrain.fromWorldTerrain(),
+    });
+
+    viewer.camera.flyTo({
+
+      // 43.9022518788158, -79.63744690218061
+      destination: Cesium.Cartesian3.fromDegrees(-79.6400272, 43.902283, 400),
+      orientation: {
+        heading: Cesium.Math.toRadians(0.0),
+        pitch: Cesium.Math.toRadians(-15.0)
+      }
+    });
+
+    const buildingTileset = await Cesium.createOsmBuildingsAsync();
+    viewer.scene.primitives.add(buildingTileset);
+
+  </script>
+</body>
+</html>
