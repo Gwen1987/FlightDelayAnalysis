@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Routes Visualization with CesiumJS</title>
+    <script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium/Build/Cesium/Widgets/widgets.css">
+    <style>
+        html, body, #cesiumContainer {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .button-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="cesiumContainer"></div>
+    <div class="button-container">
+        <select id="airlineSelect">
+            <option value="">All Airlines</option>
+            <option value="WN">Southwest Airlines</option>
+            <option value="DL">Delta Air Lines</option>
+            <option value="AA">American Airlines</option>
+            <option value="UA">United Airlines</option>
+            <option value="OO">SkyWest Airlines</option>
+            <!-- Add more airlines here -->
+        </select>
+        <input type="number" id="hourInput" placeholder="Hour (0-23)" />
+        <button onclick="animateFlights()">Start Animation</button>
+    </div>
+
+    <script>
+
+      Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNTRlMDQ5Yi0zMTFkLTQ0ZjYtODFlMC04MGJhZGNiYjgzNzkiLCJpZCI6MjkyMjIwLCJpYXQiOjE3NDQxNjE1NTh9.kLYqsSHCjp-5ap_NM8Egx9hxCCqEeCWWh0nakOLrLDg';
+        // CesiumJS Setup
+
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+        terrainProvider: Cesium.IonResource.fromAssetId(1), // Correct usage
+    });
+
+        let flightRoutes = []; // Initialize flightRoutes array
+
+        // Set the initial view of the globe
+
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(-95.0, 37.0, 3000000.0), // Longitude, Latitude, Height
+            orientation: {
+                heading: Cesium.Math.toRadians(0.0),
+                pitch: Cesium.Math.toRadians(-90.0),
+                roll: 0.0
+            }
+        });
+        try {
+          const resource = Cesium.IonResource.fromAssetId(3299921);
+          const entity = viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(0, 0, 100),
+          model: {
+            uri: resource,
+          },
+          });
+        
+          viewer.trackedEntity = entity;
+        } catch (error) {
+  console.log(error);
+}
+
+
+
+        // Add a base layer for better visualization
+        // Fetch flight data from Flask server
+        function fetchFlightData(airline = '', hour = '') {
+            let url = '/data?airline=' + airline + '&hour=' + hour;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Clear any existing flight routes
+                    flightRoutes = [];
+
+                    // Parse new data and add flight paths to Cesium
+                    data.features.forEach(feature => {
+                        const { coordinates, properties } = feature.geometry;
+                        const route = {
+                            depCoords: coordinates[0], // Departure [lon, lat]
+                            arrCoords: coordinates[1], // Arrival [lon, lat]
+                            airline: properties.airline,
+                            depTime: properties.dep_time,
+                            arrTime: properties.arr_time,
+                            depDelay: properties.dep_delay,
+                            arrDelay: properties.arr_delay,
+                        };
+
+                        flightRoutes.push(route);
+
+                        // Create a polyline for each flight route
+                        viewer.entities.add({
+                            name: 'Flight Route: ' + properties.airline,
+                            polyline: {
+                                positions: Cesium.Cartesian3.fromDegreesArray([route.depCoords[0], route.depCoords[1], route.arrCoords[0], route.arrCoords[1]]),
+                                width: 2,
+                                material: Cesium.Color.YELLOW
+                            }
+                        });
+                    });
+                });
+        }
+
+        // Start animation of flight routes
+        let flightIndex = 0;
+        let flightEntity;
+        function animateFlights() {
+            if (flightRoutes.length === 0) return;
+
+            let route = flightRoutes[flightIndex];
+            flightEntity = viewer.entities.add({
+                name: 'Animating Flight Route',
+                position: Cesium.Cartesian3.fromDegrees(route.depCoords[0], route.depCoords[1]),
+                point: {
+                    pixelSize: 10,
+                    color: Cesium.Color.RED
+                }
+            });
+
+            const flightDuration = 5000; // Duration for animation (milliseconds)
+
+            const animationInterval = setInterval(() => {
+                flightEntity.position = Cesium.Cartesian3.fromDegrees(route.arrCoords[0], route.arrCoords[1]);
+                flightIndex = (flightIndex + 1) % flightRoutes.length;
+                if (flightIndex === 0) clearInterval(animationInterval);
+            }, flightDuration);
+        }
+
+        // Event listener for filtering by airline
+        document.getElementById('airlineSelect').addEventListener('change', function() {
+            const airline = this.value;
+            const hour = document.getElementById('hourInput').value;
+            fetchFlightData(airline, hour);
+        });
+
+        // Event listener for filtering by hour
+        document.getElementById('hourInput').addEventListener('input', function() {
+            const hour = this.value;
+            const airline = document.getElementById('airlineSelect').value;
+            fetchFlightData(airline, hour);
+        });
+
+        // Initialize with some data
+        fetchFlightData();
+    </script>
+</body>
+</html>
