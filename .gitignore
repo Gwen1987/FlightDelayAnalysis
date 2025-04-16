@@ -174,3 +174,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+dataset/
+flights.geojson
+flight_times.csv
+
