@@ -9,8 +9,8 @@ flight_times_df = pd.read_csv("flight_times.csv")
 
 @app.route('/')
 def index():
-    # return render_template('index.html')
-    return render_template('cesium.html')
+    return render_template('index.html')
+    # return render_template('cesium.html')
 
 
 @app.route('/data')
@@ -31,8 +31,6 @@ def flight_data():
         except ValueError:
             pass
 
-
-    print(df.columns)
 
 
     df = df.where(pd.notnull(df), None)
