@@ -4,7 +4,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # Load preprocessed DataFrame on startup
-flight_times_df = pd.read_csv("flight_times.csv")
+flight_df = pd.read_csv("flight_times.csv")
 
 
 
@@ -15,6 +15,18 @@ def index():
     # return render_template('cesium.html')
 
 
+@app.route('/get_delays')
+def get_delays():
+    airline = request.args.get('airline')
+    if airline and airline != 'ALL':
+        filtered = flight_df[flight_df['AirlineName'] == airline]
+    else:
+        filtered = flight_df
+    
+    delays_by_airport = filtered.groupby('DepAirportCode').agg(avg_delay=('DepDelayMinutes', 'mean'), count=('DepDelayMinutes', 'count'))
+
+    return jsonify(delays_by_airport.to_dict(orient='records'))
+
 
 @app.route('/data')
 def flight_data():
@@ -22,7 +34,7 @@ def flight_data():
     hour = request.args.get('hour', '')
 
     # Filter
-    df = flight_times_df.copy()
+    df = flight_df.copy()
 
     if airline:
         df = df[df['AirlineName'] == airline]
@@ -72,6 +84,41 @@ def flight_data():
     }
 
     return jsonify(geojson)
+
+@app.route('/delay_data')
+def delay_data():
+    # Get query parameters
+    airline = request.args.get('airline', '')
+    airport = request.args.get('airport', '')
+
+    # Filter the DataFrame
+    df = flight_df.copy()
+
+    if airline:
+        df = df[df['AirlineName'] == airline]
+
+    if airport:
+        df = df[(df['DepAirportCode'] == airport) | (df['ArrAirportCode'] == airport)]
+
+    # Group by departure airport and calculate average delay
+    delay_summary = df.groupby('DepAirportCode').agg(
+        avg_delay=('DepDelayMinutes', 'mean'),
+        flight_count=('DepDelayMinutes', 'count')
+    ).reset_index()
+
+    # Replace NaN with 0 for JSON compatibility
+    delay_summary = delay_summary.fillna(0)
+
+    # Convert to JSON format
+    return jsonify({
+        "labels": delay_summary['DepAirportCode'].tolist(),
+        "delays": delay_summary['avg_delay'].tolist(),
+        "flight_counts": delay_summary['flight_count'].tolist()
+    })
+
+@app.route('/visualizations')
+def visualizations():
+    return render_template('visualizations.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

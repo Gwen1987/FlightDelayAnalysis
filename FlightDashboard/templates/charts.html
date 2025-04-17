@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Charts</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      select {
+        margin: 10px;
+        padding: 5px;
+      }
+      #chart-container {
+        width: 90%;
+        max-width: 800px;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Flight Delay Analysis Dashboard</h1>
+
+    <label for="airline">Select Airline:</label>
+    <select id="airline">
+      <option value="">All</option>
+      {% for airline in airlines %}
+      <option value="{{ airline }}">{{ airline }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="airport">Select Airport:</label>
+    <select id="airport">
+      <option value="">All</option>
+      {% for airport in airports %}
+      <option value="{{ airport }}">{{ airport }}</option>
+      {% endfor %}
+    </select>
+
+    <div id="chart-container">
+      <canvas id="delayChart"></canvas>
+    </div>
+    <script>
+      const ctx = document.getElementById("delayChart").getContext("2d");
+      let chart;
+
+      async function updateChart() {
+        const airline = document.getElementById("airline").value;
+        const airport = document.getElementById("airport").value;
+
+        const response = await fetch(
+          `/delay_data?airline=${airline}&airport=${airport}`
+        );
+        const data = await response.json();
+
+        const labels = data.labels;
+        const delays = data.delays;
+
+        if (chart) {
+          chart.destroy();
+        }
+
+        chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Average Delay (minutes)",
+                data: delays,
+                backgroundColor: "rgba(54, 162, 235, 0.6)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+      }
+
+      document
+        .getElementById("airline")
+        .addEventListener("change", updateChart);
+      document
+        .getElementById("airport")
+        .addEventListener("change", updateChart);
+
+      window.onload = updateChart;
+    </script>
+  </body>
+</html>
