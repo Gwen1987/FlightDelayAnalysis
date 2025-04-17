@@ -1,16 +1,19 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
-import json
 
 app = Flask(__name__)
 
 # Load preprocessed DataFrame on startup
 flight_times_df = pd.read_csv("flight_times.csv")
 
+
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('dashboard.html')
+    # return render_template('index.html')
     # return render_template('cesium.html')
+
 
 
 @app.route('/data')
