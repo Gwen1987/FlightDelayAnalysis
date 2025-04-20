@@ -14,5 +14,5 @@
 ![Matplotlib](https://img.shields.io/badge/Matplotlib-3.4.2-orange?style=flat-square&logo=matplotlib)
 ![Seaborn](https://img.shields.io/badge/Seaborn-0.11.1-blue?style=flat-square&logo=seaborn)
 ![Plotly](https://img.shields.io/badge/Plotly-5.1.0-blue?style=flat-square&logo=plotly)
-
+![DASH](https://img.shields.io/badge/DASH-2.17.0-blue?style=flat-square&logo=dash)
 
