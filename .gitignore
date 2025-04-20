@@ -186,3 +186,5 @@ dataframes/
 FlightDashboard/*.csv
 
 
+generation.ipynb
+foo.csv
