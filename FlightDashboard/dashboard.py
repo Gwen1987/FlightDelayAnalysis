@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
 
-full_df = pd.read_csv('sampled_full_dataframe.csv')
+full_df = pd.read_csv('full_dataframe.csv', low_memory=False)
 full_df = full_df.rename(columns={'Origin': 'DepAirportCode', 'Dest': 'ArrAirportCode'})
 
 flight_time_df = pd.read_csv('flight_times.csv')
@@ -19,7 +19,7 @@ airports_df = pd.read_csv('airports.csv')
 airports_df = airports_df.rename(columns={'IATA': 'AirportCode'})
 
 airports_df = airports_df[airports_df['Country'] == "United States"]
-print(airports_df)
+# print(airports_df)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY])
 
@@ -30,6 +30,8 @@ if 'FlightDate' in full_df.columns:
 
 full_df['WeekNumber'] = full_df['FlightDate'].dt.isocalendar().week
 
+full_df = full_df[full_df['WeekNumber'] >= 49]
+
 airports_df['DropdownLabel'] = f'{airports_df['City']} ({airports_df['AirportCode']})'
 
 full_df = full_df.merge(airports_df[['AirportCode', 'City', 'Latitude', 'Longitude']], left_on='DepAirportCode', right_on='AirportCode', how='left')
@@ -38,7 +40,7 @@ full_df = full_df.rename(columns={'City': 'DepCity', 'Latitude': 'DepLat', 'Long
 full_df = full_df.merge(airports_df[['AirportCode', 'City', 'Latitude', 'Longitude']], left_on='ArrAirportCode', right_on='AirportCode', how='left')
 full_df = full_df.rename(columns={'City': 'ArrCity', 'Latitude': 'ArrLat', 'Longitude': 'ArrLon'})
 
-print(full_df)
+# print(full_df)
 
 
 def get_week_ranges():
@@ -54,6 +56,11 @@ def get_week_ranges():
     return week_ranges
 
 week_ranges = get_week_ranges()
+print(week_ranges)
+
+week_ranges = {49: week_ranges[49], 50: week_ranges[50], 51: week_ranges[51], 52: week_ranges[52]}
+
+print(full_df['WeekNumber'])
 
 app.layout = html.Div([
     dbc.Container([
@@ -140,28 +147,54 @@ app.layout = html.Div([
      Input('week-dropdown', 'value')]
 )
 def update_delay_analysis(start_location, end_location, selected_week):
-    # Filter data based on selections
     filtered_df = full_df.copy()
+
     if start_location:
         filtered_df = filtered_df[filtered_df['DepAirportCode'] == start_location]
     if end_location:
         filtered_df = filtered_df[filtered_df['ArrAirportCode'] == end_location]
-    if selected_week:
+    if selected_week is not None:
+        selected_week = int(selected_week)
         filtered_df = filtered_df[filtered_df['WeekNumber'] == selected_week]
 
-    # Set the title based on whether a week is selected
     if selected_week:
         title = f"Average Departure Delay by Airline (Week {selected_week}: {week_ranges[selected_week]})"
     else:
         title = "Average Departure Delay by Airline (All Weeks)"
+    print(f"[DEBUG] Selected Week: {selected_week}")
+    print(f"[DEBUG] Filtered DF shape: {filtered_df.shape}")
 
-    # Delay Analysis Graph
+    if filtered_df.empty:
+        return go.Figure().update_layout(title="No data available for selected filters")
+
+    delay_df = filtered_df[['AirlineName', 'DepDelayMinutes']].dropna()
+
+    # Group by airline: average delay and count of flights
+    summary_df = delay_df.groupby('AirlineName').agg(
+        AvgDelay=('DepDelayMinutes', 'mean'),
+        FlightCount=('DepDelayMinutes', 'count')
+    ).reset_index()
+
+    # Round delay for display
+    summary_df['TextLabel'] = summary_df['FlightCount'].astype(str) + " flights"
+
     delay_fig = px.bar(
-        filtered_df.groupby('AirlineName')['DepDelayMinutes'].mean().reset_index(),
+        summary_df,
         x='AirlineName',
-        y='DepDelayMinutes',
+        y='AvgDelay',
+        text='TextLabel',
         title=title,
-        labels={'DepDelayMinutes': 'Average Delay (minutes)', 'AirlineName': 'Airline'}
+        labels={'AvgDelay': 'Average Delay (minutes)', 'AirlineName': 'Airline'}
+    )
+
+# Style the text above the bars
+    delay_fig.update_traces(textposition='outside')
+
+# Optional: tweak layout
+    delay_fig.update_layout(
+        uniformtext_minsize=8,
+        uniformtext_mode='hide',
+        yaxis=dict(title='Average Departure Delay (minutes)')
     )
 
     return delay_fig
