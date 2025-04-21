@@ -15,19 +15,19 @@
 ![Plotly](https://img.shields.io/badge/Plotly-5.1.0-blue?style=flat-square&logo=plotly)
 ![Dash](https://img.shields.io/badge/DASH-2.17.0-blue?style=flat-square&logo=dash)
 
-## Overview
+## 🧭Overview
 
 #### This project provides an interactive, user-friendly web-based dashboard that visualizes and analyzes historical flight delay data from the US (1999-2019). It enables users to explore delay patterns, identify reliable airlines and airports, and make informed travel planning decisions for specific timeframe.
 
 ![Interactive Dashboard](resources/video1.gif)
 
-## Key Features
+## 📑Key Features
 - **Interactive Data Visualization:** Explore flight delay patterns dynamically with interactive charts and maps.
 - **Real-Time Filters:** Select specific airlines, airports, and timeframes to personalize insights.
 - **Geo-Spatial Visualization:** Visualize flight routes and delays using interactive maps powered by CesiumJS and Leaflet.
 - **Comprehensive Data Analysis:** Evaluate airline reliability through composite reliability metrics and detailed statistical breakdowns.
 
-## Tech Stack
+## 🛠Tech Stack
 - **Python:** Data processing, analytics, and backend development.
 - **Flask:** Web backend serving API endpoints.
 - **Mongo Atlas:** Data storage and retrieval.
@@ -36,7 +36,7 @@
 - **Bootstrap:** Responsive and modern frontend styling.
 
 ---
-### 📁 Folder Structure
+### 📁Folder Structure
 
 ```text
 FlightDelayAnalysis/
@@ -55,7 +55,7 @@ FlightDelayAnalysis/
     └── video1.gif              # Demo animation for dashboard
 ```
 ---
-## Database
+## 🗄Database
 
 ### MongoDB Atlas
 
@@ -68,7 +68,7 @@ Collection: `flight_coll`
 - **Username:** `guest`
 - **Password:** `guest`
 
-### Connection Example
+### 🔌Connection Example
 
 ```python
 from pymongo.mongo_client import MongoClient
@@ -86,7 +86,7 @@ for doc in coll.find({'OriginStateName': 'Colorado'}).limit(5):
 
 Check live DB access [here](https://github.com/Gwen1987/FlightDelayAnalysis/blob/main/db_test.py).
 
-## Setup and Installation
+## ⚙️Setup and Installation
 
 ### Step 1: Clone the Repository
 ```bash
@@ -109,14 +109,14 @@ pip install dash bootstrap components
 python dashboard.py
 ```
 
-## Ethical Considerations
+## 🌐Ethical Considerations
 
 Data privacy and user anonymity are crucial. All personal identifiers have been stripped from datasets used, and data used is aggregated and anonymized.
 
-## Data Sources
+## 📊Data Sources
 - Flight data from publicly available databases such as the [Bureau of Transportation Statistics (BTS)](https://www.transtats.bts.gov/).
 - Flight data from publicly available databases such as [IBM Developer](https://developer.ibm.com/data/airline/).
 
-## License
+## 📄License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
