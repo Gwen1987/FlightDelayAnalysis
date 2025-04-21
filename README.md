@@ -79,21 +79,26 @@ _run live DB access [demo](https://github.com/Gwen1987/FlightDelayAnalysis/blob/
 
 1. Clone the repository:
    ```bash
-   git clone https://www.github.com/Gwen1987/FlightDelayAnalysis.git
+   git clone https://www.github.com/Gwen1987/FlightDelayAnalysis.git && cd FlightDelayAnalysis
    ```
-2. Navigate to the project directory:
-   ```bash
-    cd FlightDelayAnalysis/FlightTracker
-    ```
 
-3. Install the required dependencies:
+2. Install the required dependencies:
     ```bash
     pip install -r requirements.txt
     ```
+3. Generate the .csv files needed for the dashboard (run the main.ipynb to generate):
+    - dataframes/full_dataframe.csv
+    - dataframes/filtered_df.csv
+    - dataframes/airports_df.csv
+    - dataframes/flight_times.csv
 
-4. Set up the MongoDB database and import the flight delay data into the database. You can use the provided `import_data.py` script to import the data. Make sure to update the MongoDB connection string in the script if necessary.
+4. Navigate to the dashboard directory (FlightTracker subdirectory):
+   ```bash
+    cd FlightTracker
+    ```
 
-5. Run the Flask application:
+5. Run the DASH application:
     ```bash
     python dashboard.py
     ```
+
