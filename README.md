@@ -109,6 +109,50 @@ pip install dash bootstrap components
 python dashboard.py
 ```
 
+## 🧠 Key Insights
+<p align="center">
+  <img src="resources/figure1.png" width="300" height="200" style="display:inline" />
+  <img src="resources/figure2.png" width="300" height="200" style="display:inline" />
+  <img src="resources/figure3.png" width="300" height="200" style="display:inline" />
+  <img src="resources/figure4.png" width="300" height="200" style="display:inline" />
+  <img src="resources/figure5.png" width="300" height="200" style="display:inline" />
+</p>
+
+
+1. Consistency vs. Coverage (Figure 1 & Figure 5)
+Hawaiian Airlines tops our composite reliability index at 78 %, closely followed by Air Wisconsin and Delta. But Hawaiian’s narrow route network means fewer options if your preferred flight is full. Kalitta Air and SkyWest Airlines also score in the low‑to‑mid 70 % range with remarkably flat delay profiles across all 12 months (see Figure 5’s cooler, uniform cells), suggesting highly predictable service even if absolute OTP % trails the majors. 
+
+**Implication for travellers: If schedule consistency is paramount (e.g. retirees with fixed appointments), consider a smaller carrier like Kalitta or Air Wisconsin despite limited frequency—especially for non‑peak dates in December and January, where these regionals maintain near‑100 % OTP.**
+
+
+2. Hidden Gems Among Small Hubs (Figure 2)
+Airports FOE (Forbes Field, NE) and MIB (Miami Executive) show 100 % reliability, but each handles fewer than 50 flights per year—these “perfect” stats are sample‑size artifacts. By contrast, mid‑sized hubs like PIB (Hattiesburg‑Laurel) and EAR (Kearney, NE) each achieve 93–95 % OTP on several thousand flights annually.
+
+**Takeaway: For those willing to drive a bit further, flying out of a secondary airport can offer near‑guaranteed punctuality plus the comfort of lower crowds—ideal for family groups or seniors wanting a stress‑free departure.**
+
+3. Delay Severity Mix (Figure 3)
+Even “best” airlines have non‑zero shares of moderate (16–60 min) and severe (> 60 min) delays. For example, Delta’s 72 % on‑time bar still hides a 12 % 16–60 min bucket and 5 % > 60 min, whereas Kalitta Air squeezes both buckets below 6 % combined. Low‑cost carriers like Spirit and Frontier show the largest > 60 min shares (8–10 %), signaling that a “cheap fare” may cost you an occasional day‑ruining holdup.
+
+**Action: If avoiding “big” delays is a priority—even at the expense of a few additional minutes in the < 15 min bucket—lean toward carriers with the smallest red/orange segments, not necessarily the tallest blue bar.**
+
+4. Seasonality & Holiday Windows (Figure 4)
+July and August see the worst average delays (15–22 min) across most carriers, likely due to summer thunderstorms and peak traffic. December (month 12) is actually among the better months for OTP on many airlines—Envoy and US Airways even improve by ~ 2 min compared to annual average—suggesting that holiday routing is fairly well‑managed despite heavier load.
+
+**Recommendation: Travellers targeting the Dec 20–22 window may benefit from the unexpectedly strong December performance of regionals like Envoy and major carriers like United, which in our sample dips only ~ 1 min above its yearly mean.**
+
+5. Balancing Volume with Reliability (Figure 5)
+The treemap reveals that Southwest, American, United, and Delta dominate flight counts each month (15 k–21 k flights), but their OTP15 (color scale) spans from 75–85 %—solid but not elite. Envoy, Alaska, and PSA each show OTP15 consistently above 88 %, but account for only 4 k–9 k flights monthly.
+
+**Strategy: Travellers seeking both high on‑time odds and rebooking flexibility should favor Delta or United on their best‑performing days (look for the green‑tinted squares in Dec & Jan), while those willing to accept fewer flight options can lock in Alaska or Envoy for almost worry‑free connections.**
+
+### Putting It All Together:
+
+**Primary axis**: Pick carriers with high composite reliability and low > 60 min delay share (e.g., Hawaiian, Kalitta, Envoy).
+
+**Secondary axis**: Cross‑reference with monthly performance to tailor your specific travel window.
+
+**Tertiary axis**: Ensure you depart from an airport with sufficient flight volume (to avoid sold‑out “perfect” hubs).
+
 ## 🌐Ethical Considerations
 
 Data privacy and user anonymity are crucial. All personal identifiers have been stripped from datasets used, and data used is aggregated and anonymized.
