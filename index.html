@@ -3,7 +3,16 @@
 <head>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.128/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.128/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <link href="style.css" rel="stylesheet">
+  
+  <style>
+    *, html, body {
+      margin: 0;
+    }
+
+    #cesiumContainer {
+      height: 100vh;
+    }
+  </style>
 </head>
 <body>
   <div id="cesiumContainer"></div>
