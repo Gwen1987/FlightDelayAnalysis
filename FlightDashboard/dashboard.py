@@ -30,7 +30,7 @@ if 'FlightDate' in full_df.columns:
 
 full_df['WeekNumber'] = full_df['FlightDate'].dt.isocalendar().week
 
-full_df = full_df[full_df['WeekNumber'] >= 49]
+# full_df = full_df[full_df['WeekNumber'] >= 49]
 
 airports_df['DropdownLabel'] = f'{airports_df['City']} ({airports_df['AirportCode']})'
 
@@ -76,7 +76,7 @@ def get_week_ranges():
 week_ranges = get_week_ranges()
 print(week_ranges)
 
-week_ranges = {49: week_ranges[49], 50: week_ranges[50], 51: week_ranges[51], 52: week_ranges[52]}
+# week_ranges = {49: week_ranges[49], 50: week_ranges[50], 51: week_ranges[51], 52: week_ranges[52]}
 
 print(full_df['WeekNumber'])
 
