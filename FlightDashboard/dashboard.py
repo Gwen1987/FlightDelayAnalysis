@@ -40,7 +40,25 @@ full_df = full_df.rename(columns={'City': 'DepCity', 'Latitude': 'DepLat', 'Long
 full_df = full_df.merge(airports_df[['AirportCode', 'City', 'Latitude', 'Longitude']], left_on='ArrAirportCode', right_on='AirportCode', how='left')
 full_df = full_df.rename(columns={'City': 'ArrCity', 'Latitude': 'ArrLat', 'Longitude': 'ArrLon'})
 
-# print(full_df)
+
+# Basic flag columns
+full_df["DepOTP"] = full_df["DepDelayMinutes"] <= 0
+full_df["ArrOTP"] = full_df["ArrDelayMinutes"] <= 0
+full_df["OTP15"]  = (full_df["DepDelayMinutes"].abs() <= 15) & \
+                    (full_df["ArrDelayMinutes"].abs() <= 15)
+
+# An “Extreme” departure delay  
+full_df["ExtremeDelay"] = (full_df["DepDelayMinutes"] > 60) | \
+                          full_df.get("Cancelled", 0).fillna(0).astype(bool)
+
+# Composite reliability score for ease of viewing
+full_df["Reliability"] = (
+      0.4*full_df["DepOTP"].astype(int)
+    + 0.4*full_df["ArrOTP"].astype(int)
+    + 0.2*(~full_df["ExtremeDelay"]).astype(int)
+)
+
+print(full_df)
 
 
 def get_week_ranges():
