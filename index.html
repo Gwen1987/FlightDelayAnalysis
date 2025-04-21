@@ -1,1 +1,156 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="/FlightDelayAnalysis/favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Web site created using create-react-app"/><link rel="apple-touch-icon" href="/FlightDelayAnalysis/logo192.png"/><link rel="manifest" href="/FlightDelayAnalysis/manifest.json"/><title>React App</title><script defer="defer" src="/FlightDelayAnalysis/static/js/main.041ec04a.js"></script><link href="/FlightDelayAnalysis/static/css/main.722eafe8.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.128/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.128/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <style>
+    *, html, body {
+      margin: 0; 
+    }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <script type="module">
+    // Your access token can be found at: https://ion.cesium.com/tokens.
+    // Replace `your_access_token` with your Cesium ion access token.
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNTRlMDQ5Yi0zMTFkLTQ0ZjYtODFlMC04MGJhZGNiYjgzNzkiLCJpZCI6MjkyMjIwLCJpYXQiOjE3NDQxNjE1NTh9.kLYqsSHCjp-5ap_NM8Egx9hxCCqEeCWWh0nakOLrLDg';
+
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+  terrain: Cesium.Terrain.fromWorldTerrain(),
+});
+const osmBuildings = await Cesium.createOsmBuildingsAsync();
+viewer.scene.primitives.add(osmBuildings);
+
+
+const flightData = JSON.parse(`
+[
+  {
+    "longitude": -73.77890015,
+    "latitude": 40.6413111,
+    "height": 0
+  },
+  {
+    "longitude": -74.0059731,
+    "latitude": 39.9525839,
+    "height": 5000
+  },
+  {
+    "longitude": -75.1652215,
+    "latitude": 38.89511,
+    "height": 10000
+  },
+  {
+    "longitude": -76.6121893,
+    "latitude": 37.540726,
+    "height": 15000
+  },
+  {
+    "longitude": -77.0368707,
+    "latitude": 36.850769,
+    "height": 20000
+  },
+  {
+    "longitude": -78.6381787,
+    "latitude": 35.77959,
+    "height": 25000
+  },
+  {
+    "longitude": -80.1917902,
+    "latitude": 34.00071,
+    "height": 30000
+  },
+  {
+    "longitude": -81.3792365,
+    "latitude": 32.08354,
+    "height": 35000
+  },
+  {
+    "longitude": -82.3248262,
+    "latitude": 30.33218,
+    "height": 35000
+  },
+  {
+    "longitude": -81.2906036377,
+    "latitude": 25.7931995392,
+    "height": 0
+  }
+]
+`);
+
+/* Initialize the viewer clock:
+  Assume the radar samples are 30 seconds apart, and calculate the entire flight duration based on that assumption.
+  Get the start and stop date times of the flight, where the start is the known flight departure time (converted from PST 
+    to UTC) and the stop is the start plus the calculated duration. (Note that Cesium uses Julian dates. See 
+    https://simple.wikipedia.org/wiki/Julian_day.)
+  Initialize the viewer's clock by setting its start and stop to the flight start and stop times we just calculated. 
+  Also, set the viewer's current time to the start time and take the user to that time. 
+*/
+const timeStepInSeconds = 30;
+const totalSeconds = timeStepInSeconds * (flightData.length - 1);
+const start = Cesium.JulianDate.fromIso8601("2020-03-09T23:10:00Z");
+const stop = Cesium.JulianDate.addSeconds(start, totalSeconds, new Cesium.JulianDate());
+viewer.clock.startTime = start.clone();
+viewer.clock.stopTime = stop.clone();
+viewer.clock.currentTime = start.clone();
+viewer.timeline.zoomTo(start, stop);
+// Speed up the playback speed 50x.
+viewer.clock.multiplier = 50;
+// Start playing the scene.
+viewer.clock.shouldAnimate = true;
+
+// The SampledPositionedProperty stores the position and timestamp for each sample along the radar sample series.
+const positionProperty = new Cesium.SampledPositionProperty();
+
+for (let i = 0; i < flightData.length; i++) {
+  const dataPoint = flightData[i];
+
+  // Declare the time for this individual sample and store it in a new JulianDate instance.
+  const time = Cesium.JulianDate.addSeconds(start, i * timeStepInSeconds, new Cesium.JulianDate());
+  const position = Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, dataPoint.height);
+  // Store the position along with its timestamp.
+  // Here we add the positions all upfront, but these can be added at run-time as samples are received from a server.
+  positionProperty.addSample(time, position);
+
+  viewer.entities.add({
+    description: `Location: (${dataPoint.longitude}, ${dataPoint.latitude}, ${dataPoint.height})`,
+    position: position,
+    point: { pixelSize: 10, color: Cesium.Color.RED }
+  });
+}
+
+// STEP 4 CODE (green circle entity)
+// Create an entity to both visualize the entire radar sample series with a line and add a point that moves along the samples.
+const airplaneEntity = viewer.entities.add({
+  availability: new Cesium.TimeIntervalCollection([ new Cesium.TimeInterval({ start: start, stop: stop }) ]),
+  position: positionProperty,
+  point: { pixelSize: 30, color: Cesium.Color.GREEN },
+  path: new Cesium.PathGraphics({ width: 3 })
+});
+// Make the camera track this moving entity.
+viewer.trackedEntity = airplaneEntity;
+
+
+async function loadModel() {
+      // Load the glTF model from Cesium ion.
+      const airplaneUri = await Cesium.IonResource.fromAssetId(3299921);
+      const airplaneEntity = viewer.entities.add({
+        availability: new Cesium.TimeIntervalCollection([ new Cesium.TimeInterval({ start: start, stop: stop }) ]),
+        position: positionProperty,
+        // Attach the 3D model instead of the green point.
+        model: { uri: airplaneUri },
+        // Automatically compute the orientation from the position.
+        orientation: new Cesium.VelocityOrientationProperty(positionProperty),    
+        path: new Cesium.PathGraphics({ width: 3 })
+      });
+      
+      viewer.trackedEntity = airplaneEntity;
+    }
+
+    loadModel();
+  </script>
+ </div>
+</body>
+</html>
