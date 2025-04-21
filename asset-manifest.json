@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/FlightDelayAnalysis/static/css/main.722eafe8.css",
+    "main.js": "/FlightDelayAnalysis/static/js/main.c76f8e16.js",
+    "static/js/453.b2c0c0d0.chunk.js": "/FlightDelayAnalysis/static/js/453.b2c0c0d0.chunk.js",
+    "index.html": "/FlightDelayAnalysis/index.html",
+    "main.722eafe8.css.map": "/FlightDelayAnalysis/static/css/main.722eafe8.css.map",
+    "main.c76f8e16.js.map": "/FlightDelayAnalysis/static/js/main.c76f8e16.js.map",
+    "453.b2c0c0d0.chunk.js.map": "/FlightDelayAnalysis/static/js/453.b2c0c0d0.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.722eafe8.css",
+    "static/js/main.c76f8e16.js"
+  ]
+}
